@@ -1,0 +1,178 @@
+<%- include('partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1><%= app.name %></h1>
+        <p>Manage license keys · ID: <%= app.app_id %></p>
+      </div>
+      <a href="/dashboard/apps" class="btn btn-outline">← Back to Apps</a>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>API Credentials</h3>
+      </div>
+      <div class="card-body">
+        <div class="api-creds">
+          <div class="cred-item">
+            <label>App ID</label>
+            <code><%= app.app_id %></code>
+          </div>
+          <div class="cred-item">
+            <label>API Key</label>
+            <div class="copy-group">
+              <code><%= app.api_key %></code>
+              <button class="btn btn-xs btn-ghost" onclick="copyToClipboard('<%= app.api_key %>')">📋</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Generate License Keys</h3>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/dashboard/apps/<%= app.id %>/licenses/create" class="simple-form">
+          <div class="form-row flex-wrap">
+            <div class="form-group">
+              <label>Prefix</label>
+              <input type="text" name="prefix" placeholder="e.g. APP" style="width:100px">
+            </div>
+            <div class="form-group">
+              <label>Count</label>
+              <input type="number" name="count" value="1" min="1" max="50" style="width:80px">
+            </div>
+            <div class="form-group">
+              <label>Expires (days)</label>
+              <input type="number" name="expires_in_days" placeholder="30" style="width:100px">
+            </div>
+            <div class="form-group">
+              <label>Max Machines</label>
+              <input type="number" name="max_machines" value="1" min="1" style="width:80px">
+            </div>
+            <div class="form-group">
+              <label>Owner</label>
+              <input type="text" name="owner" placeholder="Owner name" style="width:140px">
+            </div>
+            <div class="form-group-check">
+              <label>
+                <input type="checkbox" name="is_lifetime" value="1"> Lifetime
+              </label>
+            </div>
+            <button type="submit" class="btn btn-primary" style="align-self:flex-end">Generate</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>License Keys</h3>
+        <form method="GET" action="/dashboard/apps/<%= app.id %>/licenses" class="search-form">
+          <input type="text" name="search" placeholder="Search by key or owner..." value="<%= search %>">
+          <button type="submit" class="btn btn-sm btn-outline">Search</button>
+          <% if (search) { %><a href="/dashboard/apps/<%= app.id %>/licenses" class="btn btn-sm btn-ghost">Clear</a><% } %>
+        </form>
+      </div>
+      <div class="card-body">
+        <% if (licenses.length === 0) { %>
+          <div class="empty-state small">
+            <p>No license keys yet. Generate some above.</p>
+          </div>
+        <% } else { %>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>License Key</th>
+                  <th>Owner</th>
+                  <th>HWID</th>
+                  <th>Status</th>
+                  <th>Expires</th>
+                  <th>Last Verified</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% licenses.forEach(function(lic) { %>
+                  <tr class="<%= lic.is_banned ? 'row-banned' : '' %>">
+                    <td><code class="license-key-text"><%= lic.license_key %></code></td>
+                    <td><%= lic.owner || '-' %></td>
+                    <td><code class="hwid-text"><%= lic.hwid ? lic.hwid.substring(0, 16) + '...' : '-' %></code></td>
+                    <td>
+                      <% if (lic.is_banned) { %>
+                        <span class="badge badge-danger">Banned</span>
+                      <% } else if (!lic.is_lifetime && lic.expires_at && new Date(lic.expires_at) < new Date()) { %>
+                        <span class="badge badge-danger">Expired</span>
+                      <% } else { %>
+                        <span class="badge badge-success">Active</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <% if (lic.is_lifetime) { %>
+                        <span class="badge badge-info">Lifetime</span>
+                      <% } else if (lic.expires_at) { %>
+                        <%= new Date(lic.expires_at).toLocaleDateString() %>
+                      <% } else { %>
+                        -
+                      <% } %>
+                    </td>
+                    <td><%= lic.last_verified ? new Date(lic.last_verified).toLocaleDateString() : 'Never' %></td>
+                    <td class="actions-cell">
+                      <% if (lic.is_banned) { %>
+                        <form method="POST" action="/dashboard/apps/<%= app.id %>/licenses/unban/<%= lic.id %>" style="display:inline">
+                          <button type="submit" class="btn btn-sm btn-success">Unban</button>
+                        </form>
+                      <% } else { %>
+                        <form method="POST" action="/dashboard/apps/<%= app.id %>/licenses/ban/<%= lic.id %>" style="display:inline">
+                          <button type="submit" class="btn btn-sm btn-danger">Ban</button>
+                        </form>
+                      <% } %>
+                      <form method="POST" action="/dashboard/apps/<%= app.id %>/licenses/delete/<%= lic.id %>" style="display:inline">
+                        <button type="submit" class="btn btn-sm btn-ghost" onclick="return confirm('Delete this license key?')">🗑️</button>
+                      </form>
+                    </td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Recent Activity</h3>
+      </div>
+      <div class="card-body">
+        <% if (logs.length === 0) { %>
+          <p class="text-muted">No activity yet.</p>
+        <% } else { %>
+          <div class="logs-list">
+            <% logs.forEach(function(log) { %>
+              <div class="log-item">
+                <span class="log-action badge badge-<%= log.status === 'success' ? 'success' : 'danger' %>">
+                  <%= log.action %>
+                </span>
+                <span class="log-detail"><%= log.details %></span>
+                <span class="log-meta">
+                  <% if (log.license_key) { %><code><%= log.license_key.substring(0, 12) %>...</code><% } %>
+                  <%= log.ip ? '· ' + log.ip : '' %>
+                  · <%= new Date(log.created_at).toLocaleString() %>
+                </span>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<script>
+function copyToClipboard(text) { navigator.clipboard.writeText(text); }
+</script>
+<%- include('partials/footer') %>

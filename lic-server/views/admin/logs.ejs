@@ -1,0 +1,44 @@
+<%- include('../partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>All Logs</h1>
+        <p>System-wide activity log</p>
+      </div>
+      <a href="/admin" class="btn btn-outline">← Back to Admin</a>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <div class="table-container">
+          <table class="table">
+            <thead>
+              <tr><th>User</th><th>App</th><th>Action</th><th>Details</th><th>IP</th><th>Date</th></tr>
+            </thead>
+            <tbody>
+              <% logs.forEach(function(log) { %>
+                <tr>
+                  <td><%= log.username || '-' %></td>
+                  <td><%= log.app_name || '-' %></td>
+                  <td><span class="badge badge-<%= log.action.includes('fail') || log.action.includes('ban') || log.action.includes('mismatch') ? 'danger' : 'success' %>"><%= log.action %></span></td>
+                  <td><%= log.details %></td>
+                  <td><code><%= log.ip %></code></td>
+                  <td><%= new Date(log.created_at).toLocaleString() %></td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+        <% if (totalPages > 1) { %>
+          <div class="pagination">
+            <% for (let p = 1; p <= totalPages; p++) { %>
+              <a href="/admin/logs?page=<%= p %>" class="btn btn-sm <%= p === page ? 'btn-primary' : 'btn-outline' %>"><%= p %></a>
+            <% } %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

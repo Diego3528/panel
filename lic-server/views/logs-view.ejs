@@ -1,0 +1,42 @@
+<%- include('partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <h1>Activity Logs</h1>
+    </div>
+
+    <div class="card">
+      <div class="card-body">
+        <% if (logs.length === 0) { %>
+          <div class="empty-state small"><p>No activity logs yet.</p></div>
+        <% } else { %>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>App</th>
+                  <th>Action</th>
+                  <th>Details</th>
+                  <th>IP</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% logs.forEach(function(log) { %>
+                  <tr>
+                    <td><%= log.app_name || 'Unknown' %></td>
+                    <td><span class="badge badge-<%= log.action.includes('fail') || log.action.includes('ban') || log.action.includes('mismatch') ? 'danger' : 'success' %>"><%= log.action %></span></td>
+                    <td><%= log.details %></td>
+                    <td><code><%= log.ip %></code></td>
+                    <td><%= new Date(log.created_at).toLocaleString() %></td>
+                  </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('partials/footer') %>

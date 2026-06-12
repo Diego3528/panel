@@ -1,0 +1,135 @@
+<%- include('partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <h1>API Documentation</h1>
+      <p>Integrate LicServer with your applications</p>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Authentication</h3></div>
+      <div class="card-body">
+        <p>All API requests require an API key. Get your key from your app settings in the dashboard.</p>
+        <div class="code-block docs-code">
+          <pre>X-API-Key: lic_your_api_key_here</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/verify</h3></div>
+      <div class="card-body">
+        <p>Verify a license key. Optionally bind to a HWID.</p>
+        <h4>Request</h4>
+        <div class="code-block docs-code">
+          <pre>{
+  "license_key": "YOUR-LICENSE-KEY",
+  "hwid": "device-fingerprint (optional)",
+  "ip": "client-ip (optional)"
+}</pre>
+        </div>
+        <h4>Response (Valid)</h4>
+        <div class="code-block docs-code">
+          <pre>{
+  "valid": true,
+  "status": "VALID",
+  "license_key": "YOUR-LICENSE-KEY",
+  "owner": "",
+  "hwid": "device-fingerprint",
+  "is_lifetime": false,
+  "expires_at": "2026-12-31T23:59:59.000Z",
+  "days_left": 202,
+  "last_verified": "2026-06-12T09:00:00.000Z"
+}</pre>
+        </div>
+        <h4>Response (Invalid)</h4>
+        <div class="code-block docs-code">
+          <pre>{
+  "valid": false,
+  "error": "License key has expired",
+  "expired": true
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/activate</h3></div>
+      <div class="card-body">
+        <p>Activate a license key and bind it to a HWID.</p>
+        <div class="code-block docs-code">
+          <pre>// Request
+{
+  "license_key": "YOUR-LICENSE-KEY",
+  "hwid": "device-fingerprint",
+  "owner": "user@example.com (optional)"
+}
+
+// Response
+{
+  "valid": true,
+  "status": "ACTIVATED"
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/deactivate</h3></div>
+      <div class="card-body">
+        <p>Deactivate a license key and release the HWID lock.</p>
+        <div class="code-block docs-code">
+          <pre>{
+  "license_key": "YOUR-LICENSE-KEY",
+  "hwid": "device-fingerprint"
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/check</h3></div>
+      <div class="card-body">
+        <p>Quick check if a license key is valid.</p>
+        <div class="code-block docs-code">
+          <pre>// Response: { "valid": true } or { "valid": false, "banned": true }</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/info</h3></div>
+      <div class="card-body">
+        <p>Get full details about a license key.</p>
+        <div class="code-block docs-code">
+          <pre>// Response: { "valid": true, "license": { ... } }</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>POST /api/generate</h3></div>
+      <div class="card-body">
+        <p>Generate license keys programmatically.</p>
+        <div class="code-block docs-code">
+          <pre>// Request
+{
+  "count": 5,
+  "prefix": "MYAPP",
+  "expires_in_days": 365,
+  "is_lifetime": false,
+  "max_machines": 1
+}
+
+// Response
+{
+  "valid": true,
+  "count": 5,
+  "keys": ["MYAPP-UUID1", "MYAPP-UUID2", ...]
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('partials/footer') %>

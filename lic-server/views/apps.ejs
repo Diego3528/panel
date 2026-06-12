@@ -1,0 +1,84 @@
+<%- include('partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>My Applications</h1>
+        <p>Manage your apps and API keys</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <h3>Create New Application</h3>
+      </div>
+      <div class="card-body">
+        <form method="POST" action="/dashboard/apps/create" class="simple-form">
+          <div class="form-row">
+            <div class="form-group flex-grow">
+              <input type="text" name="name" placeholder="Application name" required>
+            </div>
+            <div class="form-group flex-grow">
+              <input type="text" name="description" placeholder="Description (optional)">
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <% if (apps.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📱</div>
+        <h3>No applications</h3>
+        <p>Create your first application above.</p>
+      </div>
+    <% } else { %>
+      <div class="table-container">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>App ID</th>
+              <th>API Key</th>
+              <th>Keys</th>
+              <th>Active</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% apps.forEach(function(app) { %>
+              <tr>
+                <td><strong><%= app.name %></strong></td>
+                <td><code><%= app.app_id %></code></td>
+                <td>
+                  <div class="copy-group">
+                    <code class="truncate"><%= app.api_key %></code>
+                    <button class="btn btn-xs btn-ghost" onclick="copyToClipboard('<%= app.api_key %>')">📋</button>
+                  </div>
+                </td>
+                <td><%= app.totalLicenses %></td>
+                <td><span class="badge badge-success"><%= app.activeLicenses %></span></td>
+                <td class="actions-cell">
+                  <a href="/dashboard/apps/<%= app.id %>/licenses" class="btn btn-sm btn-primary">Manage</a>
+                  <form method="POST" action="/dashboard/apps/regenerate/<%= app.id %>" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-outline" onclick="return confirm('Regenerate API key? Old key will stop working.')">New Key</button>
+                  </form>
+                  <form method="POST" action="/dashboard/apps/delete/<%= app.id %>" style="display:inline">
+                    <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete this app and all its licenses?')">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    <% } %>
+  </div>
+</main>
+<script>
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(() => alert('Copied!'));
+}
+</script>
+<%- include('partials/footer') %>

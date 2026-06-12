@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><%= typeof title !== 'undefined' ? title + ' - ' : '' %>LicServer</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+  <nav class="navbar">
+    <div class="container nav-container">
+      <a href="/" class="nav-logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">LicServer</span>
+      </a>
+      <div class="nav-links">
+        <% if (typeof user !== 'undefined' && user) { %>
+          <a href="/dashboard" class="nav-link">Dashboard</a>
+          <% if (user.role === 'admin') { %>
+            <a href="/admin" class="nav-link">Admin</a>
+          <% } %>
+          <a href="/dashboard/logs" class="nav-link">Activity</a>
+          <div class="nav-user">
+            <span class="nav-username"><%= user.username %></span>
+            <a href="/logout" class="btn btn-sm btn-outline">Logout</a>
+          </div>
+        <% } else { %>
+          <a href="/" class="nav-link">Home</a>
+          <a href="/docs" class="nav-link">Docs</a>
+          <a href="/login" class="nav-link">Sign In</a>
+          <a href="/register" class="btn btn-sm btn-primary">Get Started</a>
+        <% } %>
+      </div>
+    </div>
+  </nav>

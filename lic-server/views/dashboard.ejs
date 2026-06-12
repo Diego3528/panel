@@ -1,0 +1,78 @@
+<%- include('partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Dashboard</h1>
+        <p>Welcome back, <%= user.username %></p>
+      </div>
+      <a href="/dashboard/apps" class="btn btn-primary">Manage Apps</a>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon apps">📱</div>
+        <div class="stat-info">
+          <span class="stat-number"><%= stats.totalApps %></span>
+          <span class="stat-label">Applications</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon licenses">🔑</div>
+        <div class="stat-info">
+          <span class="stat-number"><%= stats.totalLicenses %></span>
+          <span class="stat-label">Total Licenses</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon active">✅</div>
+        <div class="stat-info">
+          <span class="stat-number"><%= stats.activeLicenses %></span>
+          <span class="stat-label">Active Licenses</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon rate">⚡</div>
+        <div class="stat-info">
+          <span class="stat-number"><%= Math.round(stats.totalLicenses > 0 ? (stats.activeLicenses / stats.totalLicenses) * 100 : 0) %>%</span>
+          <span class="stat-label">Activation Rate</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-header">
+      <h2>Your Applications</h2>
+    </div>
+
+    <% if (apps.length === 0) { %>
+      <div class="empty-state">
+        <div class="empty-icon">📱</div>
+        <h3>No applications yet</h3>
+        <p>Create your first application to start generating license keys.</p>
+        <a href="/dashboard/apps" class="btn btn-primary">Create App</a>
+      </div>
+    <% } else { %>
+      <div class="apps-grid">
+        <% apps.forEach(function(app) { %>
+          <a href="/dashboard/apps/<%= app.id %>/licenses" class="app-card-link">
+            <div class="app-card">
+              <div class="app-card-header">
+                <h3><%= app.name %></h3>
+                <span class="app-badge"><%= app.totalLicenses %> keys</span>
+              </div>
+              <p><%= app.description || 'No description' %></p>
+              <div class="app-card-stats">
+                <span>🔑 <%= app.totalLicenses %> total</span>
+                <span>✅ <%= app.activeLicenses %> active</span>
+              </div>
+              <div class="app-id">
+                <small>ID: <%= app.app_id %></small>
+              </div>
+            </div>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+<%- include('partials/footer') %>

@@ -1,0 +1,73 @@
+<%- include('../partials/header', { title, user }) %>
+<main class="main-content">
+  <div class="container">
+    <div class="page-header">
+      <div>
+        <h1>Admin Panel</h1>
+        <p>System overview and management</p>
+      </div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">👥</div><div class="stat-info"><span class="stat-number"><%= stats.usersCount %></span><span class="stat-label">Users</span></div></div>
+      <div class="stat-card"><div class="stat-icon">📱</div><div class="stat-info"><span class="stat-number"><%= stats.appsCount %></span><span class="stat-label">Apps</span></div></div>
+      <div class="stat-card"><div class="stat-icon">🔑</div><div class="stat-info"><span class="stat-number"><%= stats.licensesCount %></span><span class="stat-label">Total Licenses</span></div></div>
+      <div class="stat-card"><div class="stat-icon">✅</div><div class="stat-info"><span class="stat-number"><%= stats.activeLicenses %></span><span class="stat-label">Active</span></div></div>
+      <div class="stat-card"><div class="stat-icon">🚫</div><div class="stat-info"><span class="stat-number"><%= stats.bannedLicenses %></span><span class="stat-label">Banned</span></div></div>
+      <div class="stat-card"><div class="stat-icon">📝</div><div class="stat-info"><span class="stat-number"><%= stats.logsCount %></span><span class="stat-label">Log Entries</span></div></div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Users</h3></div>
+      <div class="card-body">
+        <div class="table-container">
+          <table class="table">
+            <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr></thead>
+            <tbody>
+              <% users.forEach(function(u) { %>
+                <tr>
+                  <td><%= u.id %></td>
+                  <td><%= u.username %></td>
+                  <td><%= u.email %></td>
+                  <td><span class="badge badge-<%= u.role === 'admin' ? 'info' : 'default' %>"><%= u.role %></span></td>
+                  <td><%= new Date(u.created_at).toLocaleDateString() %></td>
+                  <td class="actions-cell">
+                    <form method="POST" action="/admin/users/role/<%= u.id %>" style="display:inline">
+                      <select name="role" onchange="this.form.submit()">
+                        <option value="user" <%= u.role === 'user' ? 'selected' : '' %>>User</option>
+                        <option value="admin" <%= u.role === 'admin' ? 'selected' : '' %>>Admin</option>
+                      </select>
+                    </form>
+                    <form method="POST" action="/admin/users/delete/<%= u.id %>" style="display:inline">
+                      <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Delete user?')">Delete</button>
+                    </form>
+                  </td>
+                </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><h3>Recent Activity</h3><a href="/admin/logs" class="btn btn-sm btn-outline">View All</a></div>
+      <div class="card-body">
+        <% if (recentLogs.length === 0) { %>
+          <p class="text-muted">No recent activity.</p>
+        <% } else { %>
+          <div class="logs-list">
+            <% recentLogs.forEach(function(log) { %>
+              <div class="log-item">
+                <span class="log-action badge badge-<%= log.status === 'success' ? 'success' : 'danger' %>"><%= log.action %></span>
+                <span class="log-detail"><%= log.app_name || 'N/A' %> <%= log.details %></span>
+                <span class="log-meta"><%= new Date(log.created_at).toLocaleString() %></span>
+              </div>
+            <% }) %>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>
